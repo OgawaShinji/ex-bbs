@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.example.domain.Article;
+import com.example.domain.Comment;
 
 @Repository
 public class ArticleRepository {
@@ -26,7 +27,34 @@ public class ArticleRepository {
 		article.setContent(rs.getString("content"));
 		return article;
 	};
+	private static final RowMapper<Article> ARTICLE_JOIN_COMMENT_ROW_MAPPER=(rs,i)->{
+		Article article=new Article();
+		Comment comment=new Comment();
+		List<Comment> commentList=new ArrayList();
+		comment.setId(rs.getInt("comm_id"));
+		comment.setName(rs.getString("comm_name"));
+		comment.setContent(rs.getString("comm_content"));
+		comment.setArticleId(rs.getInt("article_id"));
+		commentList.add(comment);
+		article.setId(rs.getInt("id"));
+		article.setName(rs.getString("name"));
+		article.setContent(rs.getString("content"));
+		article.setCommentList(commentList);
+		return article;
+	};
 
+	public List<Article> findJoin(){
+		String sql="SELECT a.id,a.name,a.content,c.id as comm_id,c.name as comm_name,c.content as comm_content, article_id "
+				+ "FROM articles AS a LEFT OUTER JOIN comments AS c ON a.id = c.article_id ORDER BY a.id DESC";
+		try {
+			List<Article> articleList = template.query(sql, ARTICLE_JOIN_COMMENT_ROW_MAPPER);
+			return articleList;
+		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
+			// TODO: handle exception
+			return null;
+		}
+	}
+	
 	public List<Article> findAll() {
 		String sql = "SELECT id,name,content FROM articles ORDER BY id DESC";
 		try {
