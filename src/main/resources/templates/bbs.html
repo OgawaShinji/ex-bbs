@@ -5,9 +5,15 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<form th:action="@{/ex-bbs/articleInsert}" method="post">
-		名前：<input type="text" name="name"><br> 投稿内容：<br>
-		<textarea rows="5" cols="30" name="content"></textarea>
+	<form th:action="@{/ex-bbs2/articleInsert}" th:object="${articleForm}"
+		method="post">
+		<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+			style="color: red"></div>
+		名前：<input type="text" name="name" th:field="*{name}"><br>
+		<div th:if="${#fields.hasErrors('content')}" th:errors="*{content}"
+			style="color: red"></div>
+		投稿内容：<br>
+		<textarea rows="5" cols="30" name="content" th:field="*{content}"></textarea>
 		<br>
 		<button>記事投稿</button>
 	</form>
@@ -18,20 +24,36 @@
 		<br>
 		<div th:text="${article.content}"></div>
 		<br>
-		<form th:action="@{/ex-bbs/articleDelete}" method="post">
-		<input type="hidden" name="id" th:value="${article.id}">
-		<button>記事削除</button>
+		<form th:action="@{/ex-bbs2/articleDelete}" method="post">
+			<input type="hidden" name="id" th:value="${article.id}">
+			<button>記事削除</button>
 		</form>
 		<br>
 		<div th:if="${article.commentList}"
 			th:each="comment,stat:${article.commentList}">
-			<div th:text="'コメント者名:'+${comment.name}"></div>
-			<div>コメント内容：</div>
-			<div th:text="${comment.content}"></div>
+			<div th:if="${comment.name != null}"
+				th:text="'コメント者名:'+${comment.name}"></div>
+			<div th:if="${comment.content != null}"
+				th:text="'コメント内容：'+${comment.content}"></div>
 		</div>
-		<form th:action="@{/ex-bbs/commentInsert}" method="post">
-			名前：<input type="text" name="name"><br> 投稿内容：<br>
-			<textarea rows="5" cols="30" name="content"></textarea>
+		<form th:action="@{/ex-bbs2/commentInsert}" th:object="${commentForm}"
+			method="post">
+			<div
+				th:if="${#fields.hasErrors('name') or #fields.hasErrors('content')}">
+				<div th:if="${article.id eq bindingArticleId}">
+					<div th:errors="*{name}" style="color: red"></div>
+					名前：<input type="text" name="name" th:field="*{name}"><br>
+					<div th:errors="*{content}" style="color: red"></div>
+					投稿内容：<br>
+					<textarea rows="5" cols="30" name="content" th:field="*{content}"></textarea>
+				</div>
+			</div>
+
+
+			<div th:unless="${article.id eq bindingArticleId}">
+				名前：<input type="text" name="name"><br> 投稿内容：<br>
+				<textarea rows="5" cols="30" name="content"></textarea>
+			</div>
 			<input type="hidden" name="articleId" th:value="${article.id}">
 			<br>
 			<button>コメント投稿</button>

@@ -6,12 +6,14 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.domain.Article;
 import com.example.domain.Comment;
 import com.example.repository.ArticleRepository;
 
 @Service
+@Transactional
 public class ArticleService {
 
 	@Autowired
